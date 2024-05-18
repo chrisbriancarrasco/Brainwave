@@ -127,8 +127,6 @@
 		  <div style="display: flex; width: 100%;">
 			<select class="time-select" bind:value={schedule.day}>
 			  <option value="">Day of the Week</option>
-			  <option value="Monday/Wednesday">Monday/Wednesday</option>
-			  <option value="TuesdayThursday">TuesdayThursday</option>
 			  <option value="Monday">Monday</option>
 			  <option value="Tuesday">Tuesday</option>
 			  <option value="Wednesday">Wednesday</option>
