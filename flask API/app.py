@@ -6,7 +6,7 @@ import pytz
 app = Flask(__name__)
 pst = pytz.timezone('America/Los_Angeles')
 
-@app.route('/collect_schedule', methods=['POST'])
+@app.route('/createSchedule', methods=['POST'])
 def collect_schedule():
     data = request.json
     schedule = data.get('schedule', {})
