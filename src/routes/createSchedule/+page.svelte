@@ -1,5 +1,19 @@
 <script>
-	let classSchedule = []; // Array to store class schedule data
+	const get_hours = async()=>{
+		const request = {course_ID:"362", credits:3.0,difficulty_level:6, current_grade:90, actual_study_hours:10};
+		const res = await fetch('http://127.0.0.1:5000/recommended_study_hours', {
+			method: 'POST',
+			body: JSON.stringify(request),
+			headers: {
+				'content-type': 'application/json'
+			}
+		});
+		const data = await res.json();
+		console.log({data});
+		//return data.containers[0];
+	};
+
+	let classSchedule = []; 
 	let times = [
 	  "7:00 AM", "7:30 AM",
 	  "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM",
@@ -26,7 +40,6 @@
 	  "CPSC 481",
 	  "CPSC 490",
 	  "CPSC 491"
-	  // Add more class names as needed
 	];
   
 	function addClass() {
@@ -37,6 +50,52 @@
 	  classSchedule = classSchedule.filter((_, i) => i !== index);
 	}
   </script>
+
+<div class="dropdown">
+	<div class="dropdown-content">
+	  <h2 style="text-align: center; margin-bottom: 20px;">Create Schedule</h2>
+	  {#each classSchedule as schedule, index}
+		<div style="display: flex; align-items: center;">
+		  <select class="class-select" bind:value={schedule.class}>
+			<option value="">Select Class</option>
+			{#each classNames as className}
+			  <option value={className}>{className}</option>
+			{/each}
+		  </select>
+		  <div style="display: flex; width: 100%;">
+			<select class="time-select" bind:value={schedule.day}>
+			  <option value="">Day of the Week</option>
+			  <option value="Monday">Monday</option>
+			  <option value="Tuesday">Tuesday</option>
+			  <option value="Wednesday">Wednesday</option>
+			  <option value="Thursday">Thursday</option>
+			  <option value="Friday">Friday</option>
+			  <option value="Saturday">Saturday</option>
+			  <option value="Sunday">Sunday</option>
+			</select>
+			<select class="time-select" bind:value={schedule.start_time}>
+			  <option value="">Start Time</option>
+			  {#each times as time}
+				<option value={time}>{time}</option>
+			  {/each}
+			</select>
+			<select class="time-select" bind:value={schedule.end_time}>
+			  <option value="">End Time</option>
+			  {#each times as time}
+				<option value={time}>{time}</option>
+			  {/each}
+			</select>
+		  </div>
+		  <button class="remove-btn" on:click={() => removeClass(index)}>Remove</button>
+		</div>
+	  {/each}
+	</div>
+	<div class="button-container">
+	  <button class="add-btn" on:click={addClass}>Add Class</button>
+	  <button class="add-btn" on:click={async ()=>{await get_hours()}}>Get Hours</button>
+	  <button on:click={() => console.log(classSchedule)}>Submit</button>
+	</div>
+  </div>
   
   <style>
 	.dropdown {
@@ -112,48 +171,3 @@
 	  background-color: #27ae60;
 	}
   </style>
-  
-  <div class="dropdown">
-	<div class="dropdown-content">
-	  <h2 style="text-align: center; margin-bottom: 20px;">Create Schedule</h2>
-	  {#each classSchedule as schedule, index}
-		<div style="display: flex; align-items: center;">
-		  <select class="class-select" bind:value={schedule.class}>
-			<option value="">Select Class</option>
-			{#each classNames as className}
-			  <option value={className}>{className}</option>
-			{/each}
-		  </select>
-		  <div style="display: flex; width: 100%;">
-			<select class="time-select" bind:value={schedule.day}>
-			  <option value="">Day of the Week</option>
-			  <option value="Monday">Monday</option>
-			  <option value="Tuesday">Tuesday</option>
-			  <option value="Wednesday">Wednesday</option>
-			  <option value="Thursday">Thursday</option>
-			  <option value="Friday">Friday</option>
-			  <option value="Saturday">Saturday</option>
-			  <option value="Sunday">Sunday</option>
-			</select>
-			<select class="time-select" bind:value={schedule.start_time}>
-			  <option value="">Start Time</option>
-			  {#each times as time}
-				<option value={time}>{time}</option>
-			  {/each}
-			</select>
-			<select class="time-select" bind:value={schedule.end_time}>
-			  <option value="">End Time</option>
-			  {#each times as time}
-				<option value={time}>{time}</option>
-			  {/each}
-			</select>
-		  </div>
-		  <button class="remove-btn" on:click={() => removeClass(index)}>Remove</button>
-		</div>
-	  {/each}
-	</div>
-	<div class="button-container">
-	  <button class="add-btn" on:click={addClass}>Add Class</button>
-	  <button on:click={() => console.log(classSchedule)}>Submit</button>
-	</div>
-  </div>
