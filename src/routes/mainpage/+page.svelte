@@ -8,17 +8,15 @@
     let options = {
       view: 'timeGridWeek',
       events: [
-        // your list of events
+        // 
       ]
     };
   
     let showCalendar = false;
   
-    // Function to calculate recommended hours
     function calculateRecommendedHours() {
-      // Add your logic here to calculate recommended hours
-      // For example:
-      return 40; // Recommended 40 hours
+      // Add logic 
+      return 40; // ex. recommended 40 hours
     }
   
     onMount(() => {
@@ -50,8 +48,8 @@
       flex-direction: column;
       align-items: flex-start;
       padding: 20px;
-      max-width: 600px; /* Adjust the max-width as needed */
-      margin: 0 auto; /* Centers the content horizontally */
+      max-width: 600px; 
+      margin: 0 auto; 
     }
   
     h1, p {
@@ -76,8 +74,8 @@
     }
   
     .calendar-container {
-      width: 100%; /* Ensures the calendar spans the full width */
-      max-width: 600px; /* Adjust the max-width as needed */
+      width: 100%; 
+      max-width: 600px; 
     }
   
     .recommended-hours-container {
