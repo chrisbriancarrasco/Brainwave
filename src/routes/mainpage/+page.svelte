@@ -14,7 +14,7 @@
   
     let showCalendar = false;
   
-    function calculateRecommendedHours() {
+    function RecommendedHours() {
       // Add logic 
       return 40; // ex. recommended 40 hours
     }
@@ -29,7 +29,7 @@
     <p>Welcome Username @ email</p>
   
     <div class="recommended-hours-container">
-      <p>Recommended Hours: {calculateRecommendedHours()} hours</p>
+      <p>Recommended Hours: {RecommendedHours()} hours</p>
     </div>
   
     <button on:click={() => goto("/createSchedule")}>Create Schedule</button>

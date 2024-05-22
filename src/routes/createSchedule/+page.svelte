@@ -1,4 +1,5 @@
 <script>
+	let data;
 	const get_hours = async()=>{
 		const request = {course_ID:"362", credits:3.0,difficulty_level:6, current_grade:90, actual_study_hours:10};
 		const res = await fetch('http://127.0.0.1:5000/recommended_study_hours', {
@@ -8,8 +9,9 @@
 				'content-type': 'application/json'
 			}
 		});
-		const data = await res.json();
-		console.log({data});
+		data = await res.json();
+		// 
+		return data.hours;
 		//return data.containers[0];
 	};
 
@@ -43,25 +45,39 @@
 	];
   
 	function addClass() {
-	  classSchedule = [...classSchedule, { class: "", start_time: "", end_time: "", day: "" }];
+	  classSchedule = [...classSchedule, { class: "", start_time: "", end_time: "", day: "", credits: 1, difficulty: 1, grade: "", study_hours: "" }];
 	}
   
 	function removeClass(index) {
 	  classSchedule = classSchedule.filter((_, i) => i !== index);
 	}
-  </script>
+</script>
 
 <div class="dropdown">
 	<div class="dropdown-content">
 	  <h2 style="text-align: center; margin-bottom: 20px;">Create Schedule</h2>
 	  {#each classSchedule as schedule, index}
-		<div style="display: flex; align-items: center;">
+		<div style="display: flex; align-items: center; flex-wrap: wrap;">
 		  <select class="class-select" bind:value={schedule.class}>
 			<option value="">Select Class</option>
 			{#each classNames as className}
 			  <option value={className}>{className}</option>
 			{/each}
 		  </select>
+		  <select class="credits-select" bind:value={schedule.credits}>
+			<option value="">Select Credits</option>
+			{#each Array.from({length: 3}, (_, i) => i + 1) as credit}
+			  <option value={credit}>{credit}</option>
+			{/each}
+		  </select>
+		  <select class="difficulty-select" bind:value={schedule.difficulty}>
+			<option value="">Select Difficulty</option>
+			{#each Array.from({length: 10}, (_, i) => i + 1) as diff}
+			  <option value={diff}>{diff}</option>
+			{/each}
+		  </select>
+		  <input type="number" class="grade-input" bind:value={schedule.grade} placeholder="Current Grade" min="0" max="100" />
+		  <input type="number" class="study-hours-input" bind:value={schedule.study_hours} placeholder="Actual Study Hours" min="0" />
 		  <div style="display: flex; width: 100%;">
 			<select class="time-select" bind:value={schedule.day}>
 			  <option value="">Day of the Week</option>
@@ -92,12 +108,11 @@
 	</div>
 	<div class="button-container">
 	  <button class="add-btn" on:click={addClass}>Add Class</button>
-	  <button class="add-btn" on:click={async ()=>{await get_hours()}}>Get Hours</button>
 	  <button on:click={() => console.log(classSchedule)}>Submit</button>
 	</div>
-  </div>
-  
-  <style>
+</div>
+
+<style>
 	.dropdown {
 	  position: fixed;
 	  top: 50%;
@@ -109,13 +124,15 @@
 	  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 	  width: 80%;
 	  max-width: 600px;
+	  height: 80%;
+	  overflow-y: auto;
 	}
   
 	.dropdown-content {
 	  margin-bottom: 20px;
 	}
   
-	.class-select {
+	.class-select, .credits-select, .difficulty-select, .grade-input, .study-hours-input {
 	  margin-bottom: 10px;
 	  width: calc(100% - 20px);
 	  padding: 10px;
@@ -170,4 +187,4 @@
 	.add-btn:hover {
 	  background-color: #27ae60;
 	}
-  </style>
+</style>
