@@ -1,5 +1,6 @@
 <script>
 	let data;
+	let recommendedHours = [];
 	const get_hours = async (classSchedule) => {
 		const request = classSchedule.map(schedule => ({
 			course_ID: schedule.class,
@@ -11,7 +12,7 @@
 		
 		const res = await fetch('http://127.0.0.1:5000/recommended_study_hours', {
 			method: 'POST',
-			body: JSON.stringify(request[0]),  // Assuming you handle one request at a time
+			body: JSON.stringify(request),  
 			headers: {
 				'content-type': 'application/json'
 			}
@@ -99,9 +100,9 @@
 	<div class="button-container">
 		<button class="add-btn" on:click={addClass}>Add Class</button>
 		<button on:click={async () => {
-			const recommendedHours = await get_hours(classSchedule);
+			recommendedHours = await get_hours(classSchedule);
 			console.log("Recommended hours:", recommendedHours);
-		}}>Submit</button>
+		}}>Get Recommendations</button>
 	</div>
 </div>
 
