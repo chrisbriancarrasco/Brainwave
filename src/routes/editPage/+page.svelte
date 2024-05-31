@@ -37,6 +37,53 @@
 	  classSchedule = classSchedule.filter((_, i) => i !== index);
 	}
   </script>
+
+<div class="dropdown">
+	<div class="dropdown-content">
+	  <h2 style="text-align: center; margin-bottom: 20px;">Recommendations</h2>
+	  {#each classSchedule as schedule, index}
+		<div style="display: flex; align-items: center;">
+		  <select class="class-select" bind:value={schedule.class}>
+			<option value="">Select Class</option>
+			{#each classNames as className}
+			  <option value={className}>{className}</option>
+			{/each}
+		  </select>
+		  <div style="display: flex; width: 100%;">
+			<select class="time-select" bind:value={schedule.day}>
+			  <option value="">Day of the Week</option>
+			  <option value="Monday/Wednesday">Monday/Wednesday</option>
+			  <option value="TuesdayThursday">TuesdayThursday</option>
+			  <option value="Monday">Monday</option>
+			  <option value="Tuesday">Tuesday</option>
+			  <option value="Wednesday">Wednesday</option>
+			  <option value="Thursday">Thursday</option>
+			  <option value="Friday">Friday</option>
+			  <option value="Saturday">Saturday</option>
+			  <option value="Sunday">Sunday</option>
+			</select>
+			<select class="time-select" bind:value={schedule.start_time}>
+			  <option value="">Start Time</option>
+			  {#each times as time}
+				<option value={time}>{time}</option>
+			  {/each}
+			</select>
+			<select class="time-select" bind:value={schedule.end_time}>
+			  <option value="">End Time</option>
+			  {#each times as time}
+				<option value={time}>{time}</option>
+			  {/each}
+			</select>
+		  </div>
+		  <button class="remove-btn" on:click={() => removeClass(index)}>Remove</button>
+		</div>
+	  {/each}
+	</div>
+	<div class="button-container">
+	  <button class="add-btn" on:click={addClass}>Add Class</button>
+	  <button on:click={() => console.log(classSchedule)}>Submit</button>
+	</div>
+  </div>
   
   <style>
 	.dropdown {
@@ -112,50 +159,3 @@
 	  background-color: #27ae60;
 	}
   </style>
-  
-  <div class="dropdown">
-	<div class="dropdown-content">
-	  <h2 style="text-align: center; margin-bottom: 20px;">Edit Schedule</h2>
-	  {#each classSchedule as schedule, index}
-		<div style="display: flex; align-items: center;">
-		  <select class="class-select" bind:value={schedule.class}>
-			<option value="">Select Class</option>
-			{#each classNames as className}
-			  <option value={className}>{className}</option>
-			{/each}
-		  </select>
-		  <div style="display: flex; width: 100%;">
-			<select class="time-select" bind:value={schedule.day}>
-			  <option value="">Day of the Week</option>
-			  <option value="Monday/Wednesday">Monday/Wednesday</option>
-			  <option value="TuesdayThursday">TuesdayThursday</option>
-			  <option value="Monday">Monday</option>
-			  <option value="Tuesday">Tuesday</option>
-			  <option value="Wednesday">Wednesday</option>
-			  <option value="Thursday">Thursday</option>
-			  <option value="Friday">Friday</option>
-			  <option value="Saturday">Saturday</option>
-			  <option value="Sunday">Sunday</option>
-			</select>
-			<select class="time-select" bind:value={schedule.start_time}>
-			  <option value="">Start Time</option>
-			  {#each times as time}
-				<option value={time}>{time}</option>
-			  {/each}
-			</select>
-			<select class="time-select" bind:value={schedule.end_time}>
-			  <option value="">End Time</option>
-			  {#each times as time}
-				<option value={time}>{time}</option>
-			  {/each}
-			</select>
-		  </div>
-		  <button class="remove-btn" on:click={() => removeClass(index)}>Remove</button>
-		</div>
-	  {/each}
-	</div>
-	<div class="button-container">
-	  <button class="add-btn" on:click={addClass}>Add Class</button>
-	  <button on:click={() => console.log(classSchedule)}>Submit</button>
-	</div>
-  </div>
