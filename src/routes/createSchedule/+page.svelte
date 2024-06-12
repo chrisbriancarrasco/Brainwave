@@ -1,6 +1,9 @@
 <script>
     import { goto } from '$app/navigation';
-    let data;
+    import { page } from '$app/stores';
+
+    export let data = {};
+    export let form;
     let recommendedHours = [];
     let addType = "";
     let selectedDays = [];
@@ -11,20 +14,14 @@
     let meditationSessions = [];
     let classSchedule = [];
     let studySessions = [];
-    let times = [
-        "12:00 AM", "12:30 AM", "1:00 AM", "1:30 AM", "2:00 AM", "2:30 AM", "3:00 AM", "3:30 AM",
-        "4:00 AM", "4:30 AM", "5:00 AM", "5:30 AM", "6:00 AM", "6:30 AM", "7:00 AM", "7:30 AM",
-        "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
-        "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM", "3:00 PM", "3:30 PM",
-        "4:00 PM", "4:30 PM", "5:00 PM", "5:30 PM", "6:00 PM", "6:30 PM", "7:00 PM", "7:30 PM",
-        "8:00 PM", "8:30 PM", "9:00 PM", "9:30 PM", "10:00 PM", "10:30 PM", "11:00 PM", "11:30 PM"
-    ];
 
-    let classNames = [
-        "CPSC120", "CPSC121", "CPSC131", "CPSC223", "CPSC240", "CPSC253", "CPSC315",
-        "CPSC323", "CPSC332", "CPSC335", "CPSC351", "CPSC362", "CPSC471", "CPSC481",
-        "CPSC490", "CPSC491"
-    ];
+    $: {
+        const query = new URLSearchParams($page.url.search);
+        const type = query.get('addType');
+        if (type) {
+            addType = type;
+        }
+    }
 
     const get_hours = async (classSchedule) => {
         const request = classSchedule.map(schedule => ({
@@ -82,18 +79,9 @@
 <div class="dropdown">
     <div class="dropdown-content">
         <h2 style="text-align: center; margin-bottom: 20px;">Create Schedule</h2>
-
-        <!-- Days of the week checkboxes -->
-        <div class="days-selection">
-            <h3>Select Days of the Week:</h3>
-            <div class="days-checkboxes">
-                {#each ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as day}
-                    <label>
-                        <input type="checkbox" bind:group={selectedDays} value={day} /> {day}
-                    </label>
-                {/each}
-            </div>
-        </div>
+        {#if form?.message}
+            <p>{form.message}</p>
+        {/if}
 
         <!-- Dropdown to select add type -->
         <div class="add-type-selection">
@@ -109,124 +97,156 @@
 
         <!-- Conditional rendering based on add type selection -->
         {#if addType === "class"}
-            <div class="class-selection">
-                {#each classSchedule as schedule, index}
+            <form method="POST" action="?/add_class">
+                <div class="class-selection">
+                    <div class="days-selection">
+                        <h3>Select Days of the Week:</h3>
+                        <div class="days-checkboxes">
+                            {#each data.day_of_week as day, ix}
+                                <label>
+                                    <input type="checkbox" name={`day_${ix}`} value=1 /> {day}
+                                </label>
+                            {/each}
+                        </div>
+                    </div>
+                    <h3>Select Class and Time:</h3>
                     <div style="display: flex; align-items: center; flex-wrap: wrap;">
-                        <select class="class-select" bind:value={schedule.class}>
-                            <option value="">Select Class</option>
-                            {#each classNames as className}
-                                <option value={className}>{className}</option>
+                        <select class="course-select" name="selected_class_id">
+                            <option value="">Select Course</option>
+                            {#each data.classes as cl}
+                                <option value={cl.class_id}>{cl.class_name}</option>
                             {/each}
                         </select>
-                        <select class="difficulty-select" bind:value={schedule.difficulty}>
+                        <select class="difficulty-select" name="difficulty">
                             <option value="">Select Difficulty</option>
                             {#each Array.from({ length: 10 }, (_, i) => i + 1) as diff}
                                 <option value={diff}>{diff}</option>
                             {/each}
                         </select>
-                        <input type="number" class="grade-input" bind:value={schedule.grade} placeholder="Enter Current Grade Percentage (e.g. 0-100)" min="0" max="100" />
+                        <input type="number" class="grade-input" name="grade" placeholder="Enter Current Grade Percentage (e.g. 0-100)" min="0" max="100" />
                         <div style="display: flex; width: 100%;">
-                            <select class="time-select" bind:value={schedule.start_time}>
+                            <select class="time-select" name="start_time">
                                 <option value="">Start Time</option>
-                                {#each times as time}
-                                    <option value={time}>{time}</option>
+                                {#each data.times as time}
+                                    <option value={time.minutes_since_midnight}>{time.as_string}</option>
                                 {/each}
                             </select>
-                            <select class="time-select" bind:value={schedule.end_time}>
+                            <select class="time-select" name="end_time">
                                 <option value="">End Time</option>
-                                {#each times as time}
-                                    <option value={time}>{time}</option>
+                                {#each data.times as time}
+                                    <option value={time.minutes_since_midnight}>{time.as_string}</option>
                                 {/each}
                             </select>
                         </div>
-                        <button class="remove-btn" on:click={() => removeClass(index)}>Remove</button>
                     </div>
-                {/each}
-                <button class="add-btn" on:click={addClass}>Add Class</button>
-            </div>
+                    <button class="add-btn" type="submit">Add Class</button>
+                </div>
+            </form>
         {/if}
 
         {#if addType === "study"}
-            <div class="study-hours-selection">
-                <h3>Select Study Hours:</h3>
-                {#each studySessions as session, index}
-                    <div style="display: flex; align-items: center; flex-wrap: wrap;">
-                        <select class="course-select" bind:value={session.course}>
-                            <option value="">Select Course</option>
-                            {#each classNames as className}
-                                <option value={className}>{className}</option>
+            <form method="POST" action="?/add_study_hours">
+                <div class="study-hours-selection">
+                    <div class="days-selection">
+                        <h3>Select Days of the Week:</h3>
+                        <div class="days-checkboxes">
+                            {#each data.day_of_week as day, ix}
+                                <label>
+                                    <input type="checkbox" name={`day_${ix}`} value=1 /> {day}
+                                </label>
                             {/each}
-                        </select>
-                        <select class="time-select" bind:value={session.start_time}>
-                            <option value="">Start Time</option>
-                            {#each times as time}
-                                <option value={time}>{time}</option>
-                            {/each}
-                        </select>
-                        <select class="time-select" bind:value={session.end_time}>
-                            <option value="">End Time</option>
-                            {#each times as time}
-                                <option value={time}>{time}</option>
-                            {/each}
-                        </select>
-                        <button class="remove-btn" on:click={() => removeStudySession(index)}>Remove</button>
+                        </div>
                     </div>
-                {/each}
-                <button class="add-btn" on:click={addStudySession}>Add Study Session</button>
-            </div>
+                    <h3>Select Study Hours:</h3>
+                    <div style="display: flex; align-items: center; flex-wrap: wrap;">
+                        <select class="course-select" name="selected_class_id">
+                            <option value="">Select Course</option>
+                            {#each data.user_classes as cl}
+                                <option value={cl.class_id}>{cl.class_name}</option>
+                            {/each}
+                        </select>
+                        <select class="time-select" name="start_time">
+                            <option value="">Start Time</option>
+                            {#each data.times as time}
+                                <option value={time.minutes_since_midnight}>{time.as_string}</option>
+                            {/each}
+                        </select>
+                        <select class="time-select" name="end_time">
+                            <option value="">End Time</option>
+                            {#each data.times as time}
+                                <option value={time.minutes_since_midnight}>{time.as_string}</option>
+                            {/each}
+                        </select>
+                    </div>
+                    <button class="add-btn" type="submit">Add Study Hours</button>
+                </div>
+            </form>
         {/if}
 
         {#if addType === "availability"}
-            <div class="availability-selection">
-                <h3>Select Availability Time:</h3>
-                {#each availabilitySessions as session, index}
-                    <div style="display: flex; align-items: center; flex-wrap: wrap;">
-                        <select class="time-select" bind:value={session.start_time}>
-                            <option value="">Start Time</option>
-                            {#each times as time}
-                                <option value={time}>{time}</option>
+            <form method="POST" action="?/add_availability">
+                <div class="availability-selection">
+                    <div class="days-selection">
+                        <h3>Select Days of the Week:</h3>
+                        <div class="days-checkboxes">
+                            {#each data.day_of_week as day, ix}
+                                <label>
+                                    <input type="checkbox" name={`day_${ix}`} value=1 /> {day}
+                                </label>
                             {/each}
-                        </select>
-                        <select class="time-select" bind:value={session.end_time}>
-                            <option value="">End Time</option>
-                            {#each times as time}
-                                <option value={time}>{time}</option>
-                            {/each}
-                        </select>
-                        <button class="remove-btn" on:click={() => removeAvailabilitySession(index)}>Remove</button>
+                        </div>
                     </div>
-                {/each}
-                <button class="add-btn" on:click={addAvailabilitySession}>Add Availability Session</button>
-            </div>
+                    <h3>Select Availability Time:</h3>
+                    <div style="display: flex; align-items: center; flex-wrap: wrap;">
+                        <select class="time-select" name="start_time">
+                            <option value="">Start Time</option>
+                            {#each data.times as time}
+                                <option value={time.minutes_since_midnight}>{time.as_string}</option>
+                            {/each}
+                        </select>
+                        <select class="time-select" name="end_time">
+                            <option value="">End Time</option>
+                            {#each data.times as time}
+                                <option value={time.minutes_since_midnight}>{time.as_string}</option>
+                            {/each}
+                        </select>
+                    </div>
+                    <button class="add-btn" type="submit">Add Availability Session</button>
+                </div>
+            </form>
         {/if}
 
         {#if addType === "meditation"}
-            <div class="meditation-selection">
-                <h3>Select Meditation Type and Time:</h3>
-                {#each meditationSessions as session, index}
-                    <div style="display: flex; align-items: center; flex-wrap: wrap;">
-                        <select class="meditation-type-select" bind:value={session.type}>
-                            <option value="">Select Type</option>
-                            <option value="guided">Guided Meditation</option>
-                            <option value="unguided">Unguided Meditation</option>
-                        </select>
-                        <select class="time-select" bind:value={session.start_time}>
-                            <option value="">Start Time</option>
-                            {#each times as time}
-                                <option value={time}>{time}</option>
+            <form method="POST" action="?/add_meditation">
+                <div class="meditation-selection">
+                    <div class="days-selection">
+                        <h3>Select Days of the Week:</h3>
+                        <div class="days-checkboxes">
+                            {#each data.day_of_week as day, ix}
+                                <label>
+                                    <input type="checkbox" name={`day_${ix}`} value=1 /> {day}
+                                </label>
                             {/each}
-                        </select>
-                        <select class="time-select" bind:value={session.end_time}>
-                            <option value="">End Time</option>
-                            {#each times as time}
-                                <option value={time}>{time}</option>
-                            {/each}
-                        </select>
-                        <button class="remove-btn" on:click={() => removeMeditationSession(index)}>Remove</button>
+                        </div>
                     </div>
-                {/each}
-                <button class="add-btn" on:click={addMeditationSession}>Add Meditation Session</button>
-            </div>
+                    <h3>Select Meditation Time:</h3>
+                    <div style="display: flex; align-items: center; flex-wrap: wrap;">
+                        <select class="time-select" name="start_time">
+                            <option value="">Start Time</option>
+                            {#each data.times as time}
+                                <option value={time.minutes_since_midnight}>{time.as_string}</option>
+                            {/each}
+                        </select>
+                        <select class="time-select" name="end_time">
+                            <option value="">End Time</option>
+                            {#each data.times as time}
+                                <option value={time.minutes_since_midnight}>{time.as_string}</option>
+                            {/each}
+                        </select>
+                    </div>
+                    <button class="add-btn" type="submit">Add Meditation Session</button>
+                </div>
+            </form>
         {/if}
     </div>
 
@@ -238,8 +258,11 @@
     </div>
 </div>
 
-<!-- New button to redirect to another page -->
+<!-- Button to redirect to the study hours page -->
 <button class="redirect-btn" on:click={() => goto('/studyhours')}>Study Hours Page</button>
+
+<!-- New button to go back to the main page -->
+<button class="mainpage-btn" on:click={() => goto('/mainpage')}>Main Page</button>
 
 <style>
     .dropdown {
@@ -316,10 +339,9 @@
         justify-content: space-between;
     }
 
-    .redirect-btn {
+    .redirect-btn, .mainpage-btn {
         position: fixed;
         top: 10px;
-        right: 10px;
         cursor: pointer;
         color: #fff;
         background-color: #3498db;
@@ -330,7 +352,15 @@
         transition: background-color 0.3s;
     }
 
-    .redirect-btn:hover {
+    .redirect-btn {
+        right: 10px;
+    }
+
+    .mainpage-btn {
+        left: 10px;
+    }
+
+    .redirect-btn:hover, .mainpage-btn:hover {
         background-color: #2980b9;
     }
 </style>

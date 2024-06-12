@@ -5,20 +5,34 @@
   import TimeGrid from '@event-calendar/time-grid';
 
   export let data = {};
+  let recommendations = "";
 
   let plugins = [TimeGrid];
   let options = {
     view: 'timeGridWeek',
-    events: 
-      data.events
-    
+    events: data.events,
+    eventClassNames: ["eventDetails"],
   };
+
+  import Modal,{getModal} from './Modal.svelte'
+	let name = 'world';
+	
+	let selection
+	
+	// Callback function provided to the `open` function, it receives the value given to the `close` function call, or `undefined` if the Modal was closed with escape or clicking the X, etc.
+	function setSelection(res){
+		selection=res
+	}
 
   let showCalendar = false;
 
-  function RecommendedHours() {
-    // Add logic 
-    return 40; // ex. recommended 40 hours
+  async function show_recommendations() {
+    // const result = await fetch("127.0.0.1:3000/recommended_study_hours")
+
+    // body: {courses: data.courses}
+    const result = [{course_name: "CPSC 121", recommended_hours: 10}]
+    recommendations = JSON.stringify({courses: data.courses, result});
+    getModal().open()
   }
 
   onMount(() => {
@@ -26,19 +40,32 @@
   });
 </script>
 
+<Modal>
+	<h1>Study Hours Recommendations</h1>
+	{recommendations}
+</Modal>
+
 <div class="main-container">
-  <h1>This is the main page</h1>
   <p>Welcome Username @ email</p>
 
   <div class="button-group">
-    <button on:click={() => goto("/createSchedule")}>Add Availability</button>
-    <button on:click={() => goto("/createSchedule")}>Add Classes</button>
-    <button on:click={() => goto("/createSchedule")}>Add Meditation</button>
+    <button on:click={() => goto("/createSchedule?addType=availability")}>Add Availability</button>
+    <button on:click={() => goto("/createSchedule?addType=class")}>Add Classes</button>
+    <button on:click={() => goto("/createSchedule?addType=meditation")}>Add Meditation</button>
   </div>
   <div class="button-group">
-    <button on:click={() => goto("/editPage")}>Get Recommendations</button>
-    <button on:click={() => goto("/createSchedule")}>Add Study Hours</button>
+    <button on:click={()=> show_recommendations()}>
+      Get Recommendations
+    </button>
+    <button on:click={() => goto("/createSchedule?addType=study")}>Add Study Hours</button>
   </div>
+
+  {#each data.legend as l}
+    <div class=color_chip style="background-color: {l.color}">
+      
+    </div>
+    {l.type}
+  {/each}
 
   <div class="calendar-container">
     {#if showCalendar}
@@ -48,13 +75,20 @@
 </div>
 
 <style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
   .main-container {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     padding: 20px;
-    max-width: 600px; 
-    margin: 0 auto; 
+    width: 100%;
+    height: 100%; 
+    box-sizing: border-box; 
   }
 
   h1, p {
@@ -96,10 +130,23 @@
 
   .calendar-container {
     width: 100%; 
-    max-width: 600px; 
+    flex-grow: 1; 
   }
 
   .recommended-hours-container {
     margin-top: 20px;
+  }
+
+  .eventDetails div h4 {
+    text-wrap: wrap;
+    color: green;
+    overflow: scroll;
+  }
+
+  .color_chip {
+    height: 30px;
+    min-height: 30px;
+    max-height: 30px;
+    width: 30px;
   }
 </style>
