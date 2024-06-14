@@ -27,12 +27,30 @@
   let showCalendar = false;
 
   async function show_recommendations() {
-    // const result = await fetch("127.0.0.1:3000/recommended_study_hours")
+    try {
+      console.log(JSON.stringify(data.courses));
+      const response = await fetch("http://127.0.0.1:5000/recommended_study_hours", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({x:0}),
+      });
+      
+      console.log(JSON.stringify(response));
+      const result = await response.json();
+      console.log(JSON.stringify({result, response}));
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
 
-    // body: {courses: data.courses}
-    const result = [{course_name: "CPSC 121", recommended_hours: 10}]
-    recommendations = JSON.stringify({courses: data.courses, result});
-    getModal().open()
+      recommendations = JSON.stringify(result, null, 2);
+      getModal().open();
+    } catch (error) {
+      console.error("Failed to fetch recommendations:", error);
+      recommendations = `Failed to fetch recommendations: ${error.message}`;
+      getModal().open();
+    }
   }
 
   onMount(() => {
@@ -54,18 +72,20 @@
     <button on:click={() => goto("/createSchedule?addType=meditation")}>Add Meditation</button>
   </div>
   <div class="button-group">
-    <button on:click={()=> show_recommendations()}>
+    <button on:click={async ()=> {await show_recommendations()}}>
       Get Recommendations
     </button>
     <button on:click={() => goto("/createSchedule?addType=study")}>Add Study Hours</button>
   </div>
 
-  {#each data.legend as l}
-    <div class=color_chip style="background-color: {l.color}">
-      
-    </div>
-    {l.type}
-  {/each}
+  <div class="legend-container">
+    {#each data.legend as l}
+      <div class="legend-item">
+        <div class="color_chip" style="background-color: {l.color}"></div>
+        <span>{l.type}</span>
+      </div>
+    {/each}
+  </div>
 
   <div class="calendar-container">
     {#if showCalendar}
@@ -143,10 +163,24 @@
     overflow: scroll;
   }
 
+  .legend-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    margin: 0 10px;
+  }
+
   .color_chip {
     height: 30px;
     min-height: 30px;
     max-height: 30px;
     width: 30px;
+    margin-right: 5px;
   }
 </style>

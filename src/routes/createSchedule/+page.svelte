@@ -78,22 +78,10 @@
 
 <div class="dropdown">
     <div class="dropdown-content">
-        <h2 style="text-align: center; margin-bottom: 20px;">Create Schedule</h2>
+        <h2 style="text-align: center; margin-bottom: 20px;">Add Your Personal Schedule Here</h2>
         {#if form?.message}
             <p>{form.message}</p>
         {/if}
-
-        <!-- Dropdown to select add type -->
-        <div class="add-type-selection">
-            <h3>Select Type:</h3>
-            <select bind:value={addType}>
-                <option value="">Select Option</option>
-                <option value="class">Add Class</option>
-                <option value="study">Add Study Hours</option>
-                <option value="availability">Add Availability</option>
-                <option value="meditation">Add Meditation</option>
-            </select>
-        </div>
 
         <!-- Conditional rendering based on add type selection -->
         {#if addType === "class"}
@@ -284,7 +272,7 @@
         margin-bottom: 20px;
     }
 
-    .days-selection, .add-type-selection, .class-selection, .study-hours-selection, .availability-selection, .meditation-selection {
+    .days-selection, .class-selection, .study-hours-selection, .availability-selection, .meditation-selection {
         margin-bottom: 20px;
     }
 

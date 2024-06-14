@@ -67,7 +67,8 @@ export async function load() {
     }
 
     // console.log({events}); 
-    const courses = [{course_name: "CPSC 121", difficulty_level: 8}]
+    // GET THIS OUT OF THE USER CLASSES TABLE
+    const courses = [{course_name: "CPSC121", difficulty_level: 8}]
 
     return { events: events, legend: legend, courses: courses};
 }
