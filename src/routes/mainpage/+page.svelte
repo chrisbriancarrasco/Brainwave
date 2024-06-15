@@ -34,17 +34,21 @@
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({x:0}),
+        body: JSON.stringify(data.courses),
       });
       
       console.log(JSON.stringify(response));
       const result = await response.json();
       console.log(JSON.stringify({result, response}));
       if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`);
+        throw new Error(`Error: ${result.error}`);
       }
 
-      recommendations = JSON.stringify(result, null, 2);
+      recommendations = "";
+      for (const recommendation of result.recommended_hours) {
+        recommendations = recommendations + recommendation.course_name + "=" + recommendation.recommended_hours + "\n";
+      }
+
       getModal().open();
     } catch (error) {
       console.error("Failed to fetch recommendations:", error);
@@ -64,7 +68,7 @@
 </Modal>
 
 <div class="main-container">
-  <p>Welcome Username @ email</p>
+  <p>Welcome {data.user_record.displayName}</p>
 
   <div class="button-group">
     <button on:click={() => goto("/createSchedule?addType=availability")}>Add Availability</button>
@@ -72,7 +76,7 @@
     <button on:click={() => goto("/createSchedule?addType=meditation")}>Add Meditation</button>
   </div>
   <div class="button-group">
-    <button on:click={async ()=> {await show_recommendations()}}>
+    <button on:click={ ()=> show_recommendations()}>
       Get Recommendations
     </button>
     <button on:click={() => goto("/createSchedule?addType=study")}>Add Study Hours</button>
@@ -95,12 +99,6 @@
 </div>
 
 <style>
-  html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-  }
-
   .main-container {
     display: flex;
     flex-direction: column;
@@ -151,16 +149,6 @@
   .calendar-container {
     width: 100%; 
     flex-grow: 1; 
-  }
-
-  .recommended-hours-container {
-    margin-top: 20px;
-  }
-
-  .eventDetails div h4 {
-    text-wrap: wrap;
-    color: green;
-    overflow: scroll;
   }
 
   .legend-container {

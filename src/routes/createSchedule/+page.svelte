@@ -86,6 +86,7 @@
         <!-- Conditional rendering based on add type selection -->
         {#if addType === "class"}
             <form method="POST" action="?/add_class">
+                <input type=hidden name=userid value={data.userid} />
                 <div class="class-selection">
                     <div class="days-selection">
                         <h3>Select Days of the Week:</h3>
@@ -134,6 +135,7 @@
 
         {#if addType === "study"}
             <form method="POST" action="?/add_study_hours">
+                <input type=hidden name=userid value={data.userid} />
                 <div class="study-hours-selection">
                     <div class="days-selection">
                         <h3>Select Days of the Week:</h3>
@@ -173,6 +175,7 @@
 
         {#if addType === "availability"}
             <form method="POST" action="?/add_availability">
+                <input type=hidden name=userid value={data.userid} />
                 <div class="availability-selection">
                     <div class="days-selection">
                         <h3>Select Days of the Week:</h3>
@@ -206,6 +209,7 @@
 
         {#if addType === "meditation"}
             <form method="POST" action="?/add_meditation">
+                <input type=hidden name=userid value={data.userid} />
                 <div class="meditation-selection">
                     <div class="days-selection">
                         <h3>Select Days of the Week:</h3>

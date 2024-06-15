@@ -1,8 +1,11 @@
 import sql from '$lib/server/database';
 import { title } from 'process';
 
-export async function load() {
-    const user_id = 1;
+
+export async function load({ parent }) {
+    const data = await parent();
+    console.log(JSON.stringify(data));
+    const userid = data.userid;
     const events = await sql`
     SELECT
         entry_id AS id,
@@ -14,7 +17,7 @@ export async function load() {
     FROM
         user_schedule_entries
     WHERE
-        user_id = ${user_id}`;
+        userid = ${userid}`;
 
     const classes = await sql`
     SELECT
@@ -24,6 +27,8 @@ export async function load() {
         classes
     ORDER BY
         class_name`;
+
+    
 
     const classes_by_id = {};
     classes.map( (a_class) => {classes_by_id[a_class.class_id] = a_class.class_name});
@@ -67,8 +72,17 @@ export async function load() {
     }
 
     // console.log({events}); 
-    // GET THIS OUT OF THE USER CLASSES TABLE
-    const courses = [{course_name: "CPSC121", difficulty_level: 8}]
 
-    return { events: events, legend: legend, courses: courses};
+    const user_courses = await sql`
+    SELECT
+        uc.difficulty AS difficulty_level,
+        cl.class_name AS course_name
+    FROM
+        user_classes AS uc,
+        classes AS cl
+    WHERE
+        userid = ${userid} AND 
+        uc.class_id = cl.class_id`;
+
+    return { events: events, legend: legend, courses: user_courses};
 }
