@@ -1,9 +1,13 @@
 import sql from '$lib/server/database';
-import { title } from 'process';
-
+import { PUBLIC_APISERVER } from '$env/static/public';
 
 export async function load({ parent }) {
     const data = await parent();
+
+    if ( !data.grant_access ) {
+        return data;
+    }
+
     console.log(JSON.stringify(data));
     const userid = data.userid;
     const events = await sql`
@@ -86,3 +90,48 @@ export async function load({ parent }) {
 
     return { events: events, legend: legend, courses: user_courses};
 }
+
+export const actions = {
+	get_recommendations: async ({cookies, request}) => {
+        const data = await request.formData();
+        const userid = parseInt(data.get('userid'));
+        try {
+            const user_courses = await sql`
+                SELECT
+                    uc.difficulty AS difficulty_level,
+                    cl.class_name AS course_name,
+                    sum(end_time - start_time) AS actual_study_hours
+                FROM
+                    user_classes AS uc,
+                    classes AS cl 
+                FULL OUTER JOIN user_schedule_entries AS se
+                    ON se.userid = uc.userid AND se.class_id = uc.class_id 
+                WHERE
+                    uc.userid = ${userid} AND 
+                    sc.entry_type = 'study' AND 
+                    uc.class_id = cl.class_id 
+                GROUP BY
+                    uc.difficulty, cl.class_name`;
+            const response = await fetch(`${PUBLIC_APISERVER}/recommended_study_hours`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(user_courses),
+            });
+            
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(`Error: ${result.error}`);
+            }
+    
+            recommendations = result.recommended_hours;
+    
+        //   getModal().open();
+        } catch (error) {
+            console.error("Failed to fetch recommendations:", error);
+            recommendations = `Failed to fetch recommendations: ${error.message}`;
+        //   getModal().open();
+        }
+    }
+};

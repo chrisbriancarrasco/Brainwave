@@ -1,10 +1,3 @@
--- CREATE TABLE users (
---         userid SERIAL, 
---         email_address VARCHAR(256), 
---         name VARCHAR(256), 
---         firebase_uid varchar(256)
--- );
-
 CREATE TABLE users (
         userid SERIAL, 
         email_address VARCHAR(256), 
@@ -34,4 +27,12 @@ CREATE TABLE user_schedule_entries (
         day_of_week INTEGER NOT NULL, 
         start_time TIME NOT NULL, 
         end_time TIME NOT NULL
+);
+
+CREATE TABLE contact (
+    id SERIAL PRIMARY KEY,
+    email_address VARCHAR(256) NOT NULL,
+    subject TEXT NOT NULL,
+    body TEXT NOT NULL,
+    submitted TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

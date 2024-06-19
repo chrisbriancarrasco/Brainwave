@@ -2,6 +2,11 @@ import sql from '$lib/server/database';
 
 export async function load({ parent }) {
     const data = await parent();
+
+    if ( !data.grant_access ) {
+        return data;
+    }
+
     const userid = data.userid;
     const classes = await sql`
     SELECT
@@ -24,8 +29,6 @@ export async function load({ parent }) {
         uc.class_id = cl.class_id 
     ORDER BY
         class_name`;
-
-    //console.log({classes});
 
     let times = [];
     for (let hour = 0; hour < 24; hour++) {

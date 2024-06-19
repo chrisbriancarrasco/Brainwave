@@ -16,7 +16,8 @@ path to be protected by multiple roles.
 export const path_to_role_map = new Map([
 	[new RegExp(/^[/]admin([/]|$)/), SUPERUSER_ROLE],
 	[new RegExp(/^[/]user([/]|$)/), 'user'],
-	[new RegExp(/^[/]product([/]|$)/), 'user'],
+	[new RegExp(/^[/]mainpage([/]|$)/), 'user'],
+	[new RegExp(/^[/]createSchedule([/]|$)/), 'user'],
 	[new RegExp(/^[/]useradmin([/]|$)/), 'useradmin']
 ]);
 

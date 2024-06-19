@@ -4,16 +4,7 @@
 
     export let data = {};
     export let form;
-    let recommendedHours = [];
     let addType = "";
-    let selectedDays = [];
-    let availabilityDays = [];
-    let availabilitySessions = [];
-    let studyHours = 0;
-    let meditationType = "";
-    let meditationSessions = [];
-    let classSchedule = [];
-    let studySessions = [];
 
     $: {
         const query = new URLSearchParams($page.url.search);
@@ -21,58 +12,6 @@
         if (type) {
             addType = type;
         }
-    }
-
-    const get_hours = async (classSchedule) => {
-        const request = classSchedule.map(schedule => ({
-            course_name: schedule.class,
-            credits: schedule.credits,
-            difficulty_level: schedule.difficulty,
-            current_grade: schedule.grade,
-            actual_study_hours: schedule.study_hours
-        }));
-
-        const res = await fetch('http://127.0.0.1:5000/recommended_study_hours', {
-            method: 'POST',
-            body: JSON.stringify(request),
-            headers: {
-                'content-type': 'application/json'
-            }
-        });
-        data = await res.json();
-        return data.recommended_hours;
-    };
-
-    function addClass() {
-        classSchedule = [...classSchedule, { class: "", start_time: "", end_time: "", day: "", credits: 1, difficulty: "", grade: "", study_hours: "" }];
-    }
-
-    function removeClass(index) {
-        classSchedule = classSchedule.filter((_, i) => i !== index);
-    }
-
-    function addStudySession() {
-        studySessions = [...studySessions, { course: "", start_time: "", end_time: "" }];
-    }
-
-    function removeStudySession(index) {
-        studySessions = studySessions.filter((_, i) => i !== index);
-    }
-
-    function addAvailabilitySession() {
-        availabilitySessions = [...availabilitySessions, { start_time: "", end_time: "" }];
-    }
-
-    function removeAvailabilitySession(index) {
-        availabilitySessions = availabilitySessions.filter((_, i) => i !== index);
-    }
-
-    function addMeditationSession() {
-        meditationSessions = [...meditationSessions, { type: "", start_time: "", end_time: "" }];
-    }
-
-    function removeMeditationSession(index) {
-        meditationSessions = meditationSessions.filter((_, i) => i !== index);
     }
 </script>
 
@@ -241,17 +180,7 @@
             </form>
         {/if}
     </div>
-
-    <div class="button-container">
-        <button on:click={async () => {
-            recommendedHours = await get_hours(classSchedule);
-            console.log("Recommended hours:", recommendedHours);
-        }}>Get Recommendations</button>
-    </div>
 </div>
-
-<!-- Button to redirect to the study hours page -->
-<button class="redirect-btn" on:click={() => goto('/studyhours')}>Study Hours Page</button>
 
 <!-- New button to go back to the main page -->
 <button class="mainpage-btn" on:click={() => goto('/mainpage')}>Main Page</button>
@@ -259,21 +188,19 @@
 <style>
     .dropdown {
         position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         background-color: #f9f9f9;
         padding: 20px;
-        border-radius: 10px;
         box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        width: 80%;
-        max-width: 600px;
         overflow-y: auto;
-        max-height: 80vh;
     }
 
     .dropdown-content {
-        margin-bottom: 20px;
+        margin: 0 auto;
+        max-width: 800px; /* Adjust max-width as necessary */
     }
 
     .days-selection, .class-selection, .study-hours-selection, .availability-selection, .meditation-selection {
@@ -291,7 +218,7 @@
         margin-bottom: 10px;
     }
 
-    .class-select, .difficulty-select, .grade-input, .study-hours-input, .meditation-selection select, .course-select, .meditation-type-select {
+    .difficulty-select, .grade-input, .meditation-selection select, .course-select {
         margin-bottom: 10px;
         width: calc(100% - 20px);
         padding: 10px;
@@ -311,7 +238,7 @@
         box-sizing: border-box;
     }
 
-    .remove-btn, .add-btn {
+    .add-btn {
         cursor: pointer;
         color: #fff;
         background-color: #e74c3c;
@@ -322,16 +249,11 @@
         transition: background-color 0.3s;
     }
 
-    .remove-btn:hover, .add-btn:hover {
+    .add-btn:hover {
         background-color: #c0392b;
     }
 
-    .button-container {
-        display: flex;
-        justify-content: space-between;
-    }
-
-    .redirect-btn, .mainpage-btn {
+    .mainpage-btn {
         position: fixed;
         top: 10px;
         cursor: pointer;
@@ -344,15 +266,12 @@
         transition: background-color 0.3s;
     }
 
-    .redirect-btn {
-        right: 10px;
-    }
-
     .mainpage-btn {
         left: 10px;
     }
 
-    .redirect-btn:hover, .mainpage-btn:hover {
+    .mainpage-btn:hover {
         background-color: #2980b9;
     }
 </style>
+

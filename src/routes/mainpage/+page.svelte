@@ -5,7 +5,8 @@
   import TimeGrid from '@event-calendar/time-grid';
 
   export let data = {};
-  let recommendations = "";
+  export let form;
+  let recommendations = [];
 
   let plugins = [TimeGrid];
   let options = {
@@ -26,59 +27,34 @@
 
   let showCalendar = false;
 
-  async function show_recommendations() {
-    try {
-      console.log(JSON.stringify(data.courses));
-      const response = await fetch("http://127.0.0.1:5000/recommended_study_hours", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data.courses),
-      });
-      
-      console.log(JSON.stringify(response));
-      const result = await response.json();
-      console.log(JSON.stringify({result, response}));
-      if (!response.ok) {
-        throw new Error(`Error: ${result.error}`);
-      }
-
-      recommendations = "";
-      for (const recommendation of result.recommended_hours) {
-        recommendations = recommendations + recommendation.course_name + "=" + recommendation.recommended_hours + "\n";
-      }
-
-      getModal().open();
-    } catch (error) {
-      console.error("Failed to fetch recommendations:", error);
-      recommendations = `Failed to fetch recommendations: ${error.message}`;
-      getModal().open();
-    }
-  }
-
   onMount(() => {
     showCalendar = true;
+    if (form?.recommendations.length) {
+      getModal().open();
+    }
   });
 </script>
 
 <Modal>
 	<h1>Study Hours Recommendations</h1>
-	{recommendations}
+	{#each form.recommendations as r}
+    <div class=recommendation>
+      You are in {r.course_name} and here are your recommended hours {r.recommended_hours} based on these hours to succeed in this course, you should be studying an additional {r.additional} hours.
+    </div>
+  {/each}
 </Modal>
 
 <div class="main-container">
-  <p>Welcome {data.user_record.displayName}</p>
-
   <div class="button-group">
     <button on:click={() => goto("/createSchedule?addType=availability")}>Add Availability</button>
     <button on:click={() => goto("/createSchedule?addType=class")}>Add Classes</button>
     <button on:click={() => goto("/createSchedule?addType=meditation")}>Add Meditation</button>
   </div>
   <div class="button-group">
-    <button on:click={ ()=> show_recommendations()}>
-      Get Recommendations
-    </button>
+    <form method="POST" action="?/get_recommendations">
+      <input type=hidden name=userid value={data.userid} />
+      <button class="add-btn" type="submit">Show Recommendations</button>
+    </form>
     <button on:click={() => goto("/createSchedule?addType=study")}>Add Study Hours</button>
   </div>
 
@@ -170,5 +146,9 @@
     max-height: 30px;
     width: 30px;
     margin-right: 5px;
+  }
+
+  .recommendation {
+    display: flex;
   }
 </style>

@@ -11,7 +11,6 @@ export const load = async ({ cookies, url }) => {
 	}
 
 	const application_userid = user_record?.customClaims?.application_userid;
-	//console.log("(layout.server.js) application_userid",application_userid);
 
 	return {
 		user_record,
