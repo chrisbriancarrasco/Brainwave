@@ -61,9 +61,9 @@ onDestroy(()=>{
 	
 </script>
 
-<div id="topModal" class:visible bind:this={topDiv} on:click={()=>close()}>
-	<div id='modal' on:click|stopPropagation={()=>{}}>
-		<svg id="close" on:click={()=>close()} viewBox="0 0 12 12">
+<div id="topModal" class:visible bind:this={topDiv} on:click={()=>close()} role="button" tabindex="-3"  on:keyup={()=>close()}>
+	<div id='modal' on:click|stopPropagation={()=>{}} role="button" tabindex="-2" on:keyup|stopPropagation={()=>{}}>
+		<svg id="close" on:click={()=>close()} role="button"  on:keyup={()=>close()} tabindex="-1" viewBox="0 0 12 12">
 			<circle cx=6 cy=6 r=6 />
 			<line x1=3 y1=3 x2=9 y2=9 />
 			<line x1=9 y1=3 x2=3 y2=9 />

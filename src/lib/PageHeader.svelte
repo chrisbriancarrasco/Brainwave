@@ -20,10 +20,6 @@
 </main>
 
 <style lang="postcss">
-	h1 {
-		color: darkred;
-		background: #eee;
-	}
 	.profile_pic {
 		width: 50px;
 		height: 50px;

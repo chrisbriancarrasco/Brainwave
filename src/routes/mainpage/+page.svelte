@@ -35,6 +35,7 @@
   });
 </script>
 
+{#if form}
 <Modal>
 	<h1>Study Hours Recommendations</h1>
 	{#each form.recommendations as r}
@@ -43,6 +44,7 @@
     </div>
   {/each}
 </Modal>
+{/if}
 
 <div class="main-container">
   <div class="button-group">
@@ -85,7 +87,7 @@
     box-sizing: border-box; 
   }
 
-  h1, p {
+  h1 {
     margin-bottom: 20px;
   }
 
